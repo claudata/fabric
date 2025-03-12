@@ -1,0 +1,30 @@
+# Define the workspaceId variable
+$workspaceId = "xxx"
+
+# Get the access token
+$token = (get-azaccesstoken -resource https://api.fabric.microsoft.com).Token
+
+# Define the API URL
+$listApiUrl = "https://api.fabric.microsoft.com/v1/workspaces/$workspaceId/managedPrivateEndpoints/"
+
+# Define the headers
+$headers = @{
+    "Authorization" = "Bearer $token"
+    "Content-Type" = "application/json"
+}
+
+# Make the API request
+$listResponse = Invoke-RestMethod -Uri $listApiUrl -Method Get -Headers $headers
+
+# Check the response
+if ($listResponse -ne $null) {
+    Write-Output "Managed private endpoints listed successfully"
+    
+    # Convert the response to a table format
+    $table = $listResponse.value | Format-Table -Property id, name, provisioningState, targetPrivateLinkResourceId
+    
+    # Output the table
+    $table | Out-String | Write-Output
+} else {
+    Write-Output "Failed to list managed private endpoints"
+}
